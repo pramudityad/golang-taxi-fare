@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.21, 1.22]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Run tests with coverage
+      run: make ci-test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+
+    - name: Run race detector tests
+      run: make test-race
+
+    - name: Run benchmarks
+      run: make benchmark
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    - name: Build for multiple platforms
+      run: make build-all
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: binaries
+        path: taxi-fare-*
+
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    - name: Run go vet
+      run: make vet
+
+    - name: Run go fmt check
+      run: |
+        if [ "$(gofmt -l .)" != "" ]; then
+          echo "Code is not formatted properly"
+          gofmt -l .
+          exit 1
+        fi
+
+    - name: Install staticcheck
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+    - name: Run staticcheck
+      run: staticcheck ./...
+
+  integration:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    - name: Build application
+      run: make build
+
+    - name: Run integration tests (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        echo -e "12:34:56.789 12345678.5\n12:34:57.123 12345679.1" | ./taxi-fare
+        
+    - name: Run integration tests (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        echo "12:34:56.789 12345678.5" | .\taxi-fare.exe
+
+  performance:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    - name: Build application
+      run: make build
+
+    - name: Run performance tests
+      run: |
+        # Create large test data
+        for i in $(seq 1 1000); do
+          printf "12:34:%02d.%03d 1234567%d.%d\n" $((i % 60)) $((i % 1000)) $((8 + i)) $((i % 10))
+        done > large_test_data.txt
+        
+        # Measure performance
+        time ./taxi-fare < large_test_data.txt
+
+    - name: Memory usage test
+      run: |
+        # Install tools
+        sudo apt-get update && sudo apt-get install -y time
+        
+        # Test memory usage
+        /usr/bin/time -v ./taxi-fare < large_test_data.txt || true
