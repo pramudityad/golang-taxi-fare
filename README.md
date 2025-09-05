@@ -61,6 +61,32 @@ Where:
 12:34:58.456 12345680.3
 ```
 
+### Usage Methods
+
+**File Input (Recommended):**
+```bash
+# Using redirection
+./taxi-fare < input.txt
+
+# Using pipe
+cat input.txt | ./taxi-fare
+
+# Using echo for quick testing
+echo -e "12:34:56.789 12345678.5\n12:34:57.123 12345679.1" | ./taxi-fare
+```
+
+**Interactive Mode:**
+```bash
+# Run without input redirection
+./taxi-fare
+# Type your input lines:
+12:34:56.789 12345678.5
+12:34:57.123 12345679.1
+# Press Ctrl+D (Linux/Mac) or Ctrl+Z (Windows) to signal end of input
+```
+
+**Important**: The application reads from stdin and waits for an EOF signal before processing. In interactive mode, you must press **Ctrl+D** (Linux/Mac) or **Ctrl+Z** (Windows) after entering your data to complete input and see the calculated fare.
+
 ## Fare Calculation
 
 Implements Japanese taxi fare structure:
