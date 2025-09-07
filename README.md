@@ -16,16 +16,34 @@ A high-performance, production-ready taxi fare calculation system written in Go.
 - **Cross-Platform**: Builds for Linux, macOS, Windows, and FreeBSD
 - **Production-Ready**: Signal handling, graceful shutdown, and comprehensive error handling
 
-## Quick Start
+## 🚀 Quick Start (Assignment Submission)
 
+### Option 1: Simple Build (Recommended)
 ```bash
-# Clone and build
+# Clone and build for your platform
 git clone https://github.com/user/golang-taxi-fare.git
 cd golang-taxi-fare
-make build
+go build -o taxi-fare .
 
-# Run with sample data
+# Test with sample data
 echo -e "12:34:56.789 12345678.5\n12:34:57.123 12345679.1" | ./taxi-fare
+```
+
+### Option 2: Cross-Platform Build (All Platforms)
+```bash
+# Build for all platforms (Linux, macOS, Windows, FreeBSD)
+bash scripts/build.sh
+
+# Use platform-specific binary from builds/ directory
+# Linux:   ./builds/taxi-fare-linux-amd64
+# macOS:   ./builds/taxi-fare-darwin-amd64  
+# Windows: ./builds/taxi-fare-windows-amd64.exe
+```
+
+### Option 3: Using Make (if available)
+```bash
+make build     # Build for current platform
+make build-all # Build for all platforms
 ```
 
 ## Architecture
@@ -128,7 +146,72 @@ The application uses specific exit codes for different error conditions:
 - **4**: Calculation error (computational failure)
 - **5**: General error (other failures)
 
-## Building and Testing
+## 📋 For Assignment Evaluators
+
+### System Requirements
+- **Go**: Version 1.21 or later
+- **Operating System**: Linux, macOS, Windows, or FreeBSD
+- **Architecture**: amd64 or arm64
+
+### Build Instructions (Choose One)
+
+#### Method 1: Direct Go Build (Simplest)
+```bash
+git clone <repository-url>
+cd golang-taxi-fare
+go build -o taxi-fare .
+```
+
+#### Method 2: Cross-Platform Build Script
+```bash
+# Builds for all platforms automatically
+bash scripts/build.sh
+# Creates binaries in builds/ directory with platform-specific names
+```
+
+#### Method 3: Make (If Available)
+```bash
+make build
+# OR
+make build-all  # for all platforms
+```
+
+### Testing the Application
+```bash
+# Quick functionality test
+echo -e "12:34:56.789 12345678.5\n12:34:57.123 12345679.1" | ./taxi-fare
+
+# Expected output: "400" (base fare for < 1km distance)
+```
+
+### Sample Test Data
+Ready-to-use test files are available in `test-data/` directory:
+```bash
+./taxi-fare < test-data/sample-input.txt
+```
+
+### Build Output Locations
+After running the build script, you'll get:
+
+**Individual Binaries** (in `builds/` directory):
+| Platform | Binary Path | Architecture |
+|----------|-------------|--------------|
+| Linux | `builds/taxi-fare-linux-amd64` | 64-bit |
+| Linux ARM | `builds/taxi-fare-linux-arm64` | ARM 64-bit |
+| macOS Intel | `builds/taxi-fare-darwin-amd64` | Intel 64-bit |
+| macOS Apple Silicon | `builds/taxi-fare-darwin-arm64` | Apple Silicon |
+| Windows | `builds/taxi-fare-windows-amd64.exe` | 64-bit |
+| FreeBSD | `builds/taxi-fare-freebsd-amd64` | 64-bit |
+
+**Complete Archive**: `taxi-fare-1.0.0-all-platforms.tar.gz` (contains all binaries + checksums)
+
+### Troubleshooting
+- **Go not installed**: Install Go from https://golang.org/dl/
+- **Build fails**: Ensure you're in the project directory and Go modules are available
+- **Permission denied**: On Unix systems, make the binary executable: `chmod +x ./taxi-fare`
+- **Windows script issues**: Use Git Bash or WSL for running bash scripts
+
+## Building and Testing (Detailed)
 
 ### Prerequisites
 - Go 1.21 or later
@@ -140,11 +223,11 @@ The application uses specific exit codes for different error conditions:
 # Development build
 make build
 
-# Cross-platform builds
+# Cross-platform builds  
 make build-all
 
-# With custom build script
-./scripts/build.sh
+# Custom build script (Windows compatible)
+bash scripts/build.sh
 ```
 
 ### Testing
