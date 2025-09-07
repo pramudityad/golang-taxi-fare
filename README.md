@@ -21,7 +21,7 @@ A high-performance, production-ready taxi fare calculation system written in Go.
 ### Option 1: Simple Build (Recommended)
 ```bash
 # Clone and build for your platform
-git clone https://github.com/user/golang-taxi-fare.git
+git clone https://github.com/pramudityad/golang-taxi-fare.git
 cd golang-taxi-fare
 go build -o taxi-fare .
 
