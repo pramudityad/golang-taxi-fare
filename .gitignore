@@ -53,9 +53,3 @@ Thumbs.db
 coverage.out
 coverage.html
 
-# Claude Code and TaskMaster files (keep existing)
-.claude
-.taskmaster
-.env*
-.mcp*
-CLAUDE.md
